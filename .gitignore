@@ -1,0 +1,15 @@
+# OS clutter
+.DS_Store
+
+# Source cookbook photos stay local-only (big binaries, and the repo is public).
+# The re-parseable text lives in source/*.md, which IS tracked.
+source-photos/
+*.jpg
+*.jpeg
+*.png.orig
+*.heic
+*.pdf
+
+# Scratch / node
+node_modules/
+scratch/

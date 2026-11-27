@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "note": "Recipe index built from cookbook table-of-contents OR index-page photos. SAMPLE DATA below is placeholder so the app isn't empty on first load - replace with real cookbooks. Fields: cookbook.source is 'toc' or 'index' (provenance); recipe.page is a number or a range string ('112-114'); recipe.chapter and recipe.keywords are optional. keywords come from index pages (the categories/ingredients a recipe was listed under) and are stored now so ingredient search can be added later without re-reading photos. Within a cookbook, each recipe is stored once per (title + page); the app also dedupes defensively and merges keywords.",
+  "cookbooks": [
+    {
+      "id": "sample-weeknight-dinners",
+      "title": "Sample: Weeknight Dinners",
+      "author": "Placeholder Author",
+      "source": "toc",
+      "recipes": [
+        { "title": "Sheet-Pan Chicken and Vegetables", "page": 42, "chapter": "Poultry" },
+        { "title": "One-Pot Creamy Tomato Pasta", "page": 88, "chapter": "Pasta" },
+        { "title": "Black Bean and Sweet Potato Tacos", "page": 131, "chapter": "Vegetarian" }
+      ]
+    },
+    {
+      "id": "sample-baking-basics",
+      "title": "Sample: Baking Basics",
+      "author": "Placeholder Author",
+      "source": "index",
+      "recipes": [
+        { "title": "Everyday Banana Bread", "page": 17, "keywords": ["banana", "quick breads"] },
+        { "title": "Chewy Chocolate Chip Cookies", "page": 64, "keywords": ["chocolate", "cookies"] },
+        { "title": "No-Knead Overnight Bread", "page": "112-114", "keywords": ["yeast", "bread"] }
+      ]
+    }
+  ]
+}
