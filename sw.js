@@ -1,5 +1,5 @@
 // Service worker. Bump CACHE with VERSION in app.js on every release.
-const CACHE = "cooking-app-v1";
+const CACHE = "cooking-app-v2";
 const SHELL = [
   "./",
   "./index.html",
