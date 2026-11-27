@@ -467,19 +467,51 @@ function groupByPage(list) {
       mergeKeywords(target, m.e.keywords);
       // A flush-left entry printed under another name is indexed under its
       // first term: "Clam Miso Sauce, Linguine with" is listed under "clam miso sauce".
+      // Skip it when the title already contains every word.
       if (m.e.row.level === 0 && norm(m.e.row.text) !== norm(target.title) && m.e.row.text.includes(",")) {
-        mergeKeywords(target, [m.e.row.text.split(",")[0].trim().toLowerCase()]);
+        const term = m.e.row.text.split(",")[0].trim().toLowerCase();
+        if (!isSubset(contentWords(term), contentWords(target.title))) mergeKeywords(target, [term]);
+      }
+    }
+    for (const m of members) {
+      // A flush-left entry that names something other than the title (a
+      // component like "aïoli", an alternate name like "squid") is a keyword.
+      const target = recs.length === 1 ? recs[0] : null;
+      if (target && m.e.row.level === 0 && !m.e.hasChildren && !m.e.row.text.includes(",") && !isSubset(contentWords(m.e.row.text), contentWords(target.title))) {
+        mergeKeywords(target, [m.e.row.text.toLowerCase()]);
       }
     }
     for (const r of recs) {
-      if (overrides.pages[r.title] != null && String(overrides.pages[r.title]) !== String(r.page)) {
-        applied.push(`page: "${r.title}" ${r.page} -> ${overrides.pages[r.title]}`);
-        r.page = asPage(overrides.pages[r.title]);
-      }
+      r.entries = members.length;
       out.push(r);
     }
   }
-  return out;
+  // Groups given the same title are one recipe printed at slightly different
+  // spans ("14" and "14-15"). Merge them into one span covering all of them.
+  const merged = new Map();
+  for (const r of out) {
+    const k = norm(r.title);
+    if (!merged.has(k)) { merged.set(k, { ...r, spans: [[r.page, r.entries]] }); continue; }
+    const m = merged.get(k);
+    mergeKeywords(m, r.keywords);
+    m.spans.push([r.page, r.entries]);
+  }
+  const result = [];
+  for (const m of merged.values()) {
+    const nums = m.spans.flatMap(([p]) => String(p).split("-").map(Number));
+    const lo = Math.min(...nums);
+    const hi = Math.max(...nums);
+    m.page = lo === hi ? lo : `${lo}-${hi}`;
+    if (m.spans.length > 1) applied.push(`merged "${m.title}" from pages ${m.spans.map((s) => s[0]).join(", ")} -> ${m.page}`);
+    if (overrides.pages[m.title] != null && String(overrides.pages[m.title]) !== String(m.page)) {
+      applied.push(`page: "${m.title}" ${m.page} -> ${overrides.pages[m.title]}`);
+      m.page = asPage(overrides.pages[m.title]);
+    }
+    delete m.spans;
+    delete m.entries;
+    result.push(m);
+  }
+  return result;
 }
 
 function asPage(v) {
@@ -501,6 +533,24 @@ function flagSharedPages(list) {
     if (titles.length > 1) {
       addFlag(`page-titles:${p}`, "same page", `Page ${p} has ${titles.length} titles: ${titles.map((t) => `"${t}"`).join(", ")}.`);
     }
+  }
+}
+
+// chapters.tsv (optional, for books whose contents page lists only chapters):
+// photo, chapter, page. Each recipe gets the last chapter starting at or before
+// its first page. Not used when toc.tsv gives chapters directly.
+const chaptersPath = path.join(dir, "chapters.tsv");
+if (!hasToc && fs.existsSync(chaptersPath)) {
+  const cl = fs.readFileSync(chaptersPath, "utf8").split(/\r?\n/);
+  const ch = cl.shift().split("\t");
+  const chapters = cl.filter((l) => l.trim()).map((l) => {
+    const f = l.split("\t");
+    return { chapter: f[ch.indexOf("chapter")].trim(), page: Number(f[ch.indexOf("page")]) };
+  }).sort((a, b) => a.page - b.page);
+  for (const r of recipes) {
+    const first = Number(String(r.page).match(/\d+/)[0]);
+    const c = chapters.filter((x) => x.page <= first).pop();
+    if (c) r.chapter = c.chapter;
   }
 }
 

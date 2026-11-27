@@ -35,6 +35,9 @@ One folder per book, `intake/<book-id>/`:
   `level`, `text`, `pages`.
 - `toc.tsv` (optional): one row per TOC entry. Columns `photo`, `chapter`,
   `title`, `page` (the start page).
+- `chapters.tsv` (optional, only without `toc.tsv`): for a contents page that
+  lists chapters but not recipes. Columns `photo`, `chapter`, `page`; each
+  recipe gets the last chapter starting at or before its first page.
 - `overrides.json`: decisions made during review (see below).
 - `notes.md`: book-specific context that isn't obvious from the other files.
 - `review.md`: written by the build script. Don't edit it.
@@ -110,7 +113,10 @@ How the script decides what's a recipe:
   title picked from the entries that share it. For indexes that print recipes
   under many names. Non-recipes are guessed (headings with their own page,
   "notes on", "origins of", "Surname, First"), and entries like "Blender, 17"
-  need `exclude`.
+  need `exclude`. Spans given the same title are merged into one recipe
+  covering all of them ("14" and "14-15" become 14-15). For an index in
+  lowercase index phrasing (Tapas), set every title in `pageTitles` and say in
+  the book's notes that the titles are reconstructed.
 
 Pages are collapsed to first–last (`68, 69–70` becomes `68-70`), per Matt.
 Sub-headings keep their parent as a keyword ("vinegar › white" gives "white

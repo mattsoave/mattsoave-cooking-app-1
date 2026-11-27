@@ -11,6 +11,19 @@ Questions for Matt that don't block the work. Agents add new ones here instead o
 	- If no: remove the `chapter` part of the result line in `app.js` (`render()`); keep the data, which is still useful for grouping later. Bump the version in `app.js` and `sw.js`.
 	- If shortened: options are chapter number only ("Ch. 5"), or the part before the colon ("Stews, Rouxes, and Ragùs"). Either needs a small change in `app.js`, plus storing the chapter number if we go with "Ch. 5".
 
+### Tapas
+
+2. **Can you photograph the four part-opener pages (pp. 8, 32, 60, 72), if they list recipes?** The contents page only lists the parts, and the index is all lowercase, so all 42 titles are my reconstructions from index wording (e.g. "Chicken in Lemon & Garlic" from "chicken › in lemon & garlic"). Search still finds them, since the words are the same, but the titles may not match the book's.
+	- In the meantime: reconstructed titles in `intake/tapas/overrides.json` (`pageTitles`).
+	- If you send them: add a `toc.tsv` from those pages; it replaces `pageTitles` (delete it) and gives exact chapters, so `chapters.tsv` can go too. Then rebuild with `--write`.
+	- If there's no recipe list anywhere, the parts I'm least sure of:
+		- **pp. 78–79:** salmon, sardines, and trout are each "marinated in sherry vinegar". I made one recipe, "Salmon, Sardines, or Trout Marinated in Sherry Vinegar". It could be three short recipes.
+		- **pp. 38 and 38–39:** "Sautéed Garlic Mushrooms" and "Sautéed Garlic Zucchini" as two recipes.
+		- **p. 77:** "Salmon in Mojo Sauce", with the Canary Island green and red sauces treated as the mojo sauces, not separate recipes.
+3. **Shorter book name in results?** Every Tapas result shows "Tapas: A Classic Collection of Spanish-Style Recipes", which will wrap on a phone, especially with a chapter after it (see question 1).
+	- In the meantime: the full title.
+	- If shorter: change `title` in `intake/tapas/book.json` to "Tapas" and rebuild with `--write`. (Or add a separate short display name to the data model, if you want the full title kept somewhere.)
+
 ## Answered
 
 - Anything's Pastable, real title on pp. 80–82: the TOC prints "Scallion Oil Bucatini with Runny Eggs". My guess ("Bucatini with Scallion Oil and Runny Eggs") was wrong; the TOC title is now used.
