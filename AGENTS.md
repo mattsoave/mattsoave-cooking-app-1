@@ -46,6 +46,18 @@ A cookbook has a TOC, an index, or both. They're different shapes:
 
 ## Adding a cookbook (the main workflow)
 
+Matt takes the photos in page order, so the image **filenames sort into page
+sequence** (e.g. `PXL_20261127_053649738.jpg` before `...053715187.jpg`). Use
+the filename order to order the pages; don't rely on guessing from content.
+
+Some index entries are NOT recipes and must be excluded: equipment (e.g.
+"Blender, 17"), people (e.g. "Cannata, Giovanni, 2, 10"), and essays/notes/tips
+(e.g. "origins of", "creation of", "cooking methods", "notes on", "notes about",
+pasta-shape notes like "Angel hair pasta, 152"). Judge each entry: a recipe is a
+dish/preparation, usually with a multi-page range. When the same recipe is listed
+under several headings in permuted forms ("Shrimp with X" vs "X, Shrimp with"),
+it's ONE recipe - dedupe by its page range and keep the headings as keywords.
+
 1. Matt sends photos of a cookbook's TOC and/or index pages.
 2. Transcribe them into `source/<id>.md` (chapters/keyword headings as `##`,
    recipes as `page — title` lines, keeping nesting). Keep chapters/keywords
@@ -57,9 +69,15 @@ A cookbook has a TOC, an index, or both. They're different shapes:
 ## Search
 
 - All matching lives in `search.js` (`flattenRecipes`, `searchRecipes`) — the
-  single seam, no DOM. Currently: case/accent-insensitive, multi-word AND,
-  substring match on **title only**. Swap for fuzzy search or add
-  chapter/cookbook filters here and nowhere else.
+  single seam, no DOM. Case/accent-insensitive, multi-word AND, substring match.
+  `searchRecipes(index, query, { includeKeywords })`:
+  - default (toggle off): matches **title only**.
+  - `includeKeywords: true`: also matches a recipe's `keywords` (index
+    ingredients/categories), so "tomato" surfaces recipes that list tomato even
+    when the title doesn't. Title matches rank above keyword-only matches.
+- The toggle ("Also search ingredients & categories") is a checkbox in the
+  header; `app.js` persists it in `localStorage` (`cooking.includeKeywords`,
+  default off) and shows a "matches: …" hint on keyword-only hits.
 - `app.js` is the shell: load, render, highlight, service worker.
 
 ## Version rule

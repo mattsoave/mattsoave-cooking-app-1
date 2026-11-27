@@ -56,23 +56,35 @@
       .trim();
   }
 
-  // Split a query into words. Every word must appear in the title (AND match).
-  // For now we only search the recipe title, per the spec. To add ingredient
-  // search later, also test row.keywords here - that's the only change needed,
-  // because the keywords are already carried on every row by flattenRecipes.
-  function searchRecipes(index, query) {
+  // Split a query into words; every word must match (AND).
+  // By default we only match the recipe TITLE. With opts.includeKeywords, a word
+  // may also match the recipe's keywords (the index categories/ingredients), so
+  // "tomato" can surface recipes that list tomato as an ingredient even when the
+  // title doesn't say it. Keywords are already carried on every row by
+  // flattenRecipes, so this is the only place that changes.
+  function searchRecipes(index, query, opts) {
+    const includeKeywords = !!(opts && opts.includeKeywords);
     const terms = norm(query).split(/\s+/).filter(Boolean);
     if (terms.length === 0) return [];
     const results = index.filter((row) => {
       const title = norm(row.title);
-      return terms.every((t) => title.includes(t));
+      if (terms.every((t) => title.includes(t))) return true;
+      if (!includeKeywords) return false;
+      const hay = title + " " + norm((row.keywords || []).join(" "));
+      return terms.every((t) => hay.includes(t));
     });
-    // Sort: exact-ish (title starts with the query) first, then alphabetical.
+    // Rank: title starts-with query, then title contains all terms, then
+    // keyword-only matches last; alphabetical within each tier.
     const q = norm(query);
+    function rank(row) {
+      const t = norm(row.title);
+      if (t.startsWith(q)) return 0;
+      if (terms.every((x) => t.includes(x))) return 1;
+      return 2; // matched only via keywords
+    }
     results.sort((a, b) => {
-      const as = norm(a.title).startsWith(q) ? 0 : 1;
-      const bs = norm(b.title).startsWith(q) ? 0 : 1;
-      if (as !== bs) return as - bs;
+      const ra = rank(a), rb = rank(b);
+      if (ra !== rb) return ra - rb;
       return norm(a.title).localeCompare(norm(b.title));
     });
     return results;

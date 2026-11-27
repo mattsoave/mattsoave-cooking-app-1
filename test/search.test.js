@@ -69,6 +69,27 @@ t("multi-word is AND", () => {
   assert.strictEqual(r[0].title, "Grilled Chicken Salad");
 });
 
+t("keywords ignored by default (title-only)", () => {
+  // "pasta" is a keyword on Chicken Parmesan (Book B) but in no title.
+  assert.strictEqual(searchRecipes(index, "pasta").length, 0);
+});
+
+t("includeKeywords matches keywords too", () => {
+  const r = searchRecipes(index, "pasta", { includeKeywords: true });
+  assert.strictEqual(r.length, 1);
+  assert.strictEqual(r[0].title, "Chicken Parmesan");
+  assert.strictEqual(r[0].cookbook, "Book B");
+});
+
+t("title matches rank above keyword-only matches", () => {
+  // "chicken" is in two titles and is a keyword on the Book B Parmesan.
+  const r = searchRecipes(index, "chicken", { includeKeywords: true });
+  assert.ok(r.length >= 2);
+  // every title-containing result comes before any keyword-only result
+  const titleHits = r.filter((x) => x.title.toLowerCase().includes("chicken"));
+  assert.strictEqual(r.slice(0, titleHits.length).every((x) => x.title.toLowerCase().includes("chicken")), true);
+});
+
 t("accent-insensitive", () => {
   const r = searchRecipes(index, "creme brulee");
   assert.strictEqual(r.length, 1);
