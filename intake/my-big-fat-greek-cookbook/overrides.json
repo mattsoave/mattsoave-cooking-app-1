@@ -2,11 +2,11 @@
   "titles": {
     "Boiled Dandelion Greens (horta vrasta)Boiled Dandelion Greens (horta vrasta)": "Boiled Dandelion Greens (horta vrasta)"
   },
-  "pages": {
-    "Stuffed Grape Leaves with Egg-Lemon Sauce (dolmadakia me avgolemono)": "7",
-    "Roasted Cod with Onions and Potatoes (bakaliaros plaki)": "110"
-  },
+  "pages": {},
   "exclude": [],
   "keep": [],
-  "reviewed": []
+  "reviewed": [
+    "index-page:stuffed grape leaves with egg-lemon sauce (dolmadakia me avgolemono):4",
+    "index-page:roasted cod with onions and potatoes (bakaliaros plaki):109"
+  ]
 }

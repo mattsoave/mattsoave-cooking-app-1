@@ -224,6 +224,11 @@ function readToc() {
   return out;
 }
 
+function spanHas(span, page) {
+  const [lo, hi] = String(span).split("-").map(Number);
+  return page >= lo && page <= (Number.isNaN(hi) || hi === undefined ? lo : hi);
+}
+
 function contentWords(s) {
   return new Set([...words(s)].filter((w) => !STOP.has(w)));
 }
@@ -243,10 +248,38 @@ function buildWithToc(list) {
     recs.push({ title: t.title, tocPage: t.page, chapter: t.chapter || null, keywords: [], spans: new Map() });
   }
 
-  // Group index entries by page span, then give each group to the TOC
+  // An entry printed with a TOC recipe's title (with or without the Greek or
+  // other parenthetical name) belongs to that recipe whatever its page. If its
+  // page span doesn't include the TOC page, the index has probably misprinted
+  // the page, so flag it.
+  const byTitle = new Map();
+  for (const r of recs) {
+    byTitle.set(norm(r.title), r);
+    const bare = r.title.replace(/\s*\([^)]*\)\s*$/, "");
+    if (bare !== r.title && !byTitle.has(norm(bare))) byTitle.set(norm(bare), r);
+  }
+  const misprints = new Map();
+  const rest = [];
+  for (const e of list) {
+    const r = byTitle.get(norm(e.row.text));
+    if (!r) { rest.push(e); continue; }
+    const span = String(parsePages(e.row.pagesRaw));
+    assign(r, e, span);
+    if (!spanHas(span, r.tocPage)) {
+      const k = `${norm(r.title)}\u0000${span}`;
+      if (!misprints.has(k)) misprints.set(k, { r, span, lines: [] });
+      misprints.get(k).lines.push(e.row.line);
+    }
+  }
+  for (const { r, span, lines } of misprints.values()) {
+    addFlag(`index-page:${norm(r.title)}:${span}`, "index page",
+      `The index prints "${r.title}" at ${span} (lines ${lines.join(", ")}), but the TOC says p.${r.tocPage}. Using the TOC page.`);
+  }
+
+  // Group the remaining entries by page span, then give each group to the TOC
   // recipe(s) whose start page falls inside the span.
   const groups = new Map();
-  for (const e of list) {
+  for (const e of rest) {
     const span = String(parsePages(e.row.pagesRaw));
     if (!groups.has(span)) groups.set(span, []);
     groups.get(span).push(e);
@@ -276,28 +309,37 @@ function buildWithToc(list) {
           if (score > best) { best = score; target = r; }
         }
       }
-      target.spans.set(span, (target.spans.get(span) || 0) + 1);
-      mergeKeywords(target, m.keywords);
-      // A flush-left entry printed under another name is indexed under its
-      // first term ("Pine Nuts, Marinated, ..." is listed under "pine nuts").
-      // Skip it when the title already contains every word.
-      if (m.row.level === 0 && m.row.text.includes(",")) {
-        const term = m.row.text.split(",")[0].replace(/["“”]/g, "").trim().toLowerCase();
-        if (!isSubset(words(term), words(target.title))) mergeKeywords(target, [term]);
-      }
+      assign(target, m, span);
+    }
+  }
+
+  function assign(target, m, span) {
+    target.spans.set(span, (target.spans.get(span) || 0) + 1);
+    mergeKeywords(target, m.keywords);
+    // A flush-left entry printed under another name is indexed under its
+    // first term ("Pine Nuts, Marinated, ..." is listed under "pine nuts").
+    // Skip it when the title already contains every word.
+    if (m.row.level === 0 && m.row.text.includes(",")) {
+      const term = m.row.text.split(",")[0].replace(/["“”]/g, "").trim().toLowerCase();
+      if (!isSubset(words(term), words(target.title))) mergeKeywords(target, [term]);
     }
   }
 
   for (const r of recs) {
+    // The displayed page is the index span that includes the TOC page (the
+    // most common one if there are several). If no index span includes it,
+    // use the TOC page.
+    const good = [...r.spans.entries()].filter(([s]) => spanHas(s, r.tocPage)).sort((a, b) => b[1] - a[1]);
     if (!r.spans.size) {
       r.page = r.tocPage;
       tocReport.notInIndex.push(`"${r.title}" p.${r.tocPage}`);
       addFlag(`not-in-index:${norm(r.title)}`, "not in index", `"${r.title}" (TOC p.${r.tocPage}) matched no index entry, so it has no keywords and uses the TOC page.`);
+    } else if (!good.length) {
+      r.page = r.tocPage;
     } else {
-      const spans = [...r.spans.entries()].sort((a, b) => b[1] - a[1]);
-      r.page = asPage(spans[0][0]);
-      if (spans.length > 1) {
-        addFlag(`spans:${norm(r.title)}`, "page spans", `"${r.title}" matched index entries with different page spans: ${spans.map(([s, n]) => `${s} (${n})`).join(", ")}. Using ${spans[0][0]}.`);
+      r.page = asPage(good[0][0]);
+      if (good.length > 1) {
+        addFlag(`spans:${norm(r.title)}`, "page spans", `"${r.title}" matched index entries with different page spans: ${good.map(([s, n]) => `${s} (${n})`).join(", ")}. Using ${good[0][0]}.`);
       }
     }
     if (overrides.pages[r.title] != null && String(overrides.pages[r.title]) !== String(r.page)) {

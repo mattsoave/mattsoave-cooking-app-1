@@ -1,5 +1,5 @@
 // Cookbook Recipe Finder - app shell. Bump VERSION with CACHE in sw.js on release.
-const VERSION = "5";
+const VERSION = "6";
 
 const els = {
   version: document.getElementById("version"),

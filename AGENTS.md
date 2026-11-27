@@ -42,6 +42,12 @@ One folder per book, `intake/<book-id>/`:
 Photos live in `source-photos/<book-id>/` and are gitignored (big binaries in a
 public repo). They aren't backed up anywhere else.
 
+Matt often delivers photos as a Google Drive zip
+(`drive-download-*.zip`) dropped into the book's folder. Unzip it into that same
+folder without overwriting (`unzip -n`), check that every file in the zip is
+there, then delete the zip. Drive zips list files out of order; the filenames
+still sort into page order.
+
 `intake/open-questions.md` holds questions for Matt that don't block the work,
 each with what was done in the meantime and what to change once answered. Add
 new questions there instead of asking in chat; he answers them in bulk.
@@ -71,7 +77,8 @@ new questions there instead of asking in chat; he answers them in bulk.
   - Copy printed typos as they are and fix them in `overrides.json`, so the fix
     is visible.
 - **TOC rows:** titles in normal capitalization (TOCs are often all caps),
-  using the index's spelling and casing where it prints the same title.
+  using the index's spelling and casing where it prints the same title. Drop a
+  parenthetical that only repeats the title ("BRIAMI (briami)" is "Briami").
   `chapter` is the chapter name from the main contents page.
 - Matt photographs both the TOC and the index for every book. The agent decides
   whether the TOC is useful: skip it if it lists only chapters.
@@ -86,10 +93,13 @@ node scripts/build-book.js <book-id> --write    # replace the book in data/recip
 
 How the script decides what's a recipe:
 
-- **With `toc.tsv`:** the TOC is the list of recipes and the source of titles
-  and chapters. Index entries are grouped by page span, and each group goes to
-  the TOC recipe whose start page is inside the span; when two TOC recipes fall
-  inside one span, each entry goes to the title it shares the most words with.
+- **With `toc.tsv`:** the TOC is the list of recipes and the source of titles,
+  chapters, and start pages. An index entry printed with a TOC title (or the
+  title minus its parenthetical) goes to that recipe; if its page span doesn't
+  include the TOC page, it's flagged as a likely index misprint and the TOC page
+  wins. Other entries are grouped by page span, and each group goes to the TOC
+  recipe whose start page is inside the span; when two TOC recipes fall inside
+  one span, each entry goes to the title it shares the most words with.
   Index entries that match no TOC recipe (notes, gear, people, components) are
   dropped and listed in `review.md`. A TOC recipe with no index match keeps its
   TOC page and gets flagged.
