@@ -99,13 +99,94 @@
     main { padding: 12px 16px 40px; max-width: 680px; margin: 0 auto; }
     .meta { font-size: 0.8rem; color: var(--muted); margin: 4px 2px 12px; }
     ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
-    li.recipe {
+    button.recipe {
+      display: block;
+      width: 100%;
+      text-align: left;
+      font: inherit;
+      color: inherit;
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 12px 14px;
       box-shadow: var(--shadow);
+      cursor: pointer;
     }
+    button.recipe:active { background: var(--surface-2); }
+    .recipe-mine { font-size: 0.78rem; color: var(--muted); margin-top: 4px; font-style: italic; }
+    .dot {
+      display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+      background: var(--accent); margin-right: 6px; vertical-align: 1px;
+    }
+
+    /* "My notes" bar on the home screen */
+    .mine-bar {
+      margin-top: 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+    .mine-bar h2 { font-size: 0.95rem; margin: 0 0 6px; }
+    #mine-summary { font-size: 0.85rem; color: var(--muted); margin: 0 0 8px; }
+    #mine-list { gap: 0; margin-bottom: 10px; }
+    .mine-item {
+      display: flex; justify-content: space-between; gap: 10px; width: 100%;
+      font: inherit; font-size: 0.88rem; text-align: left; color: var(--text);
+      background: none; border: none; border-top: 1px solid var(--border);
+      padding: 8px 0; cursor: pointer;
+    }
+    .mine-state { color: var(--muted); font-size: 0.78rem; white-space: nowrap; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .btn {
+      font: inherit; font-size: 0.9rem; font-weight: 600;
+      border: none; border-radius: 999px; padding: 8px 16px; cursor: pointer;
+      background: var(--accent); color: var(--accent-text);
+    }
+    .btn.secondary { background: var(--surface-2); color: var(--text); }
+    .link {
+      font: inherit; font-size: 0.8rem; color: var(--muted); background: none;
+      border: none; padding: 6px 0; text-decoration: underline; cursor: pointer;
+    }
+    [hidden] { display: none !important; }
+
+    /* Recipe detail: full-screen on a phone */
+    dialog#detail {
+      width: 100%; max-width: 680px; height: 100%; max-height: 100%;
+      margin: 0 auto; padding: 0; border: none;
+      background: var(--bg); color: var(--text);
+    }
+    dialog#detail::backdrop { background: rgba(0, 0, 0, 0.4); }
+    .sheet { padding: max(12px, env(safe-area-inset-top)) 16px 40px; }
+    .sheet-head { display: flex; justify-content: flex-end; }
+    #d-close {
+      font-size: 1.6rem; line-height: 1; padding: 4px 10px;
+      background: none; border: none; color: var(--muted); cursor: pointer;
+    }
+    #d-title { font-size: 1.2rem; margin: 0 0 4px; }
+    .sheet section { margin-top: 18px; }
+    .sheet h3 { font-size: 0.85rem; margin: 0 0 6px; color: var(--muted); font-weight: 600; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip {
+      display: inline-flex; align-items: center; gap: 2px;
+      background: var(--surface-2); color: var(--text);
+      border-radius: 999px; padding: 3px 4px 3px 11px; font-size: 0.85rem;
+    }
+    .chip.ro { padding: 3px 11px; color: var(--muted); }
+    .chip button {
+      font-size: 1rem; line-height: 1; padding: 0 6px;
+      background: none; border: none; color: var(--muted); cursor: pointer;
+    }
+    .add-row { display: flex; gap: 8px; margin-top: 8px; }
+    .add-row input, #d-notes {
+      flex: 1; min-width: 0; font: inherit; font-size: 1rem;
+      padding: 9px 12px; border: 1px solid var(--border); border-radius: 10px;
+      background: var(--surface); color: var(--text); outline: none;
+    }
+    .add-row input:focus, #d-notes:focus { border-color: var(--accent); }
+    #d-notes { width: 100%; resize: vertical; min-height: 120px; }
+    #d-status { font-size: 0.8rem; color: var(--muted); margin-top: 16px; }
+    .warn { color: var(--accent); font-size: 0.82rem; margin-top: 4px; }
     .recipe-title { font-weight: 600; font-size: 1rem; }
     .recipe-sub { font-size: 0.85rem; color: var(--muted); margin-top: 3px; }
     .recipe-sub .cookbook { color: var(--text); }
@@ -145,9 +226,63 @@
     <div class="meta" id="meta"></div>
     <ul id="results"></ul>
     <div class="empty hint" id="hint">Type a keyword to find which cookbook a recipe is in.</div>
+
+    <section class="mine-bar" id="mine-bar" hidden>
+      <h2>My notes</h2>
+      <p id="mine-summary"></p>
+      <ul id="mine-list"></ul>
+      <div class="actions">
+        <button class="btn" id="export-share">Share export</button>
+        <button class="btn secondary" id="export-download">Download export</button>
+        <button class="link" id="export-again">Export waiting ones again</button>
+      </div>
+    </section>
   </main>
 
+  <dialog id="detail" aria-labelledby="d-title">
+    <div class="sheet">
+      <div class="sheet-head">
+        <button id="d-close" aria-label="Close">&times;</button>
+      </div>
+      <h2 id="d-title"></h2>
+      <div class="recipe-sub" id="d-sub"></div>
+
+      <section>
+        <h3>My ingredients</h3>
+        <div class="chips" id="d-ing"></div>
+        <div class="add-row">
+          <input id="d-ing-input" type="text" autocomplete="off" enterkeyhint="done"
+                 placeholder="Add an ingredient, e.g. ground beef" aria-label="Add an ingredient" />
+          <button class="btn secondary" id="d-ing-add">Add</button>
+        </div>
+      </section>
+
+      <section>
+        <h3>My keywords</h3>
+        <div class="chips" id="d-kw"></div>
+        <div class="add-row">
+          <input id="d-kw-input" type="text" autocomplete="off" enterkeyhint="done"
+                 placeholder="Add a keyword, e.g. weeknight" aria-label="Add a keyword" />
+          <button class="btn secondary" id="d-kw-add">Add</button>
+        </div>
+      </section>
+
+      <section>
+        <h3>Notes</h3>
+        <textarea id="d-notes" rows="5" placeholder="Anything worth remembering next time"></textarea>
+      </section>
+
+      <section id="d-index-wrap">
+        <h3>From the book's index</h3>
+        <div class="chips" id="d-index-kw"></div>
+      </section>
+
+      <div id="d-status"></div>
+    </div>
+  </dialog>
+
   <script src="./search.js"></script>
+  <script src="./notes.js"></script>
   <script src="./app.js"></script>
 </body>
 </html>

@@ -10,6 +10,9 @@ source-photos/
 *.heic
 *.pdf
 
+# Notes exported from the app. Imported into data/additions.json, which is tracked.
+cooking-notes-*.json
+
 # Scratch / node
 node_modules/
 scratch/

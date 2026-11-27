@@ -56,6 +56,14 @@
       .trim();
   }
 
+  // Everything besides the title that the keyword toggle searches: the index
+  // keywords plus Matt's own ingredients and keywords (row.mine, set by app.js
+  // from notes.js). Notes text isn't searched.
+  function extraTerms(row) {
+    const mine = row.mine || {};
+    return [].concat(row.keywords || [], mine.ingredients || [], mine.keywords || []);
+  }
+
   // Split a query into words; every word must match (AND).
   // By default we only match the recipe TITLE. With opts.includeKeywords, a word
   // may also match the recipe's keywords (the index categories/ingredients), so
@@ -70,7 +78,7 @@
       const title = norm(row.title);
       if (terms.every((t) => title.includes(t))) return true;
       if (!includeKeywords) return false;
-      const hay = title + " " + norm((row.keywords || []).join(" "));
+      const hay = title + " " + norm(extraTerms(row).join(" "));
       return terms.every((t) => hay.includes(t));
     });
     // Rank: title starts-with query, then title contains all terms, then
@@ -90,7 +98,7 @@
     return results;
   }
 
-  const api = { flattenRecipes, searchRecipes, _norm: norm };
+  const api = { flattenRecipes, searchRecipes, extraTerms, _norm: norm };
   if (typeof module !== "undefined" && module.exports) {
     module.exports = api;
   } else {

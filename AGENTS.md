@@ -156,13 +156,51 @@ two.
   `searchRecipes(index, query, { includeKeywords })`:
   - default (toggle off): matches **title only**.
   - `includeKeywords: true`: also matches a recipe's `keywords`, so "tomato"
-    surfaces recipes that list tomato even when the title doesn't. Title
-    matches rank above keyword-only matches.
+    surfaces recipes that list tomato even when the title doesn't. It also
+    matches Matt's own ingredients and keywords (`row.mine`, see My notes).
+    Notes text isn't searched. Title matches rank above keyword-only matches.
 - The toggle ("Also search ingredients & categories") is a checkbox in the
   header; `app.js` persists it in `localStorage` (`cooking.includeKeywords`,
   default off) and shows a "matches: …" hint on keyword-only hits.
 - `flattenRecipes` also dedupes by (title + page) within a book, as a backstop.
-- `app.js` is the shell: load, render, highlight, service worker.
+- `app.js` is the shell: load, render, highlight, recipe detail, export,
+  service worker.
+
+## My notes (Matt's additions to a recipe)
+
+Tapping a recipe opens a detail screen where Matt adds his own ingredients
+(specific ones like "ground beef", not the full list), keywords (free tagging),
+and written notes. The book's index keywords show there read-only.
+
+- **Two layers.** Edits are saved on the phone first (`localStorage`,
+  `cooking.myNotes`). The permanent copy is `data/additions.json`, which is
+  committed and loaded alongside `recipes.json`. It's separate from
+  `recipes.json` so that rebuilding a book never touches Matt's notes. The
+  repo is public, so his notes are too once they're imported.
+- **Key:** `<cookbook id>::<recipe title>`. A rebuild that retitles a recipe
+  orphans its additions; `node scripts/import-notes.js --check` lists those.
+  Fix by renaming the key (and `title`) in `additions.json`.
+- **A local entry holds the recipe's full state**, not a diff, so an import
+  replaces that recipe's additions. An entry with everything cleared removes
+  them.
+- **Lifecycle** (all logic in `notes.js`, no DOM, tested in
+  `test/notes.test.js`):
+  1. Edit: the entry is "not exported yet".
+  2. Export (home screen, My notes card): a `cooking-notes-<exportId>.json`
+     file of the not-yet-exported entries. Each entry gets that `exportId` and
+     shows as "waiting". Exporting again skips waiting entries, except through
+     "Export waiting ones again" (for a lost file), which gives them a new id.
+  3. Editing a waiting entry makes it "not exported yet" again.
+  4. Import: `node scripts/import-notes.js <file> [...]` (dry run), then
+     `--write`. It records the `exportId` in `importedExports`. Files are
+     applied oldest first, an older export never overwrites a newer edit, and
+     an id already imported is skipped.
+  5. Ship: bump the version, commit, push. On load the app deletes local
+     entries whose `exportId` is in `importedExports` and says so on the My
+     notes card. An entry edited after its export has no `exportId`, so it
+     stays.
+- Export files Matt hands over are gitignored (`cooking-notes-*.json`); the
+  data lives on in `additions.json`.
 
 ## Version rule
 
@@ -174,6 +212,7 @@ two.
 ## Tests
 
 - `node test/search.test.js` runs the search-logic tests (pure Node, no deps).
+- `node test/notes.test.js` runs the My notes lifecycle tests.
 - After changing `scripts/build-book.js`, run every book with `--compare` and
   check that nothing changed unexpectedly.
 
