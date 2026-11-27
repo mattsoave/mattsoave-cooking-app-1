@@ -34,7 +34,7 @@ beef
 	3 — Meatballs (keftedes)
 	95-96 — Moussaka
 	93-94 — Pastichio
-	4 — Stuffed Grape Leaves with Egg-Lemon Sauce (dolmadakia me avgolemono)
+	7 — Stuffed Grape Leaves with Egg-Lemon Sauce (dolmadakia me avgolemono)
 35 — Boiled Dandelion Greens (horta vrasta)
 85 — Boiled Goat (gida vrasti)
 151 — Bougatsa
@@ -102,7 +102,7 @@ figs
 goat ribs
 	85 — Boiled Goat (gida vrasti)
 grape leaves
-	4 — Stuffed Grape Leaves with Egg-Lemon Sauce (dolmadakia me avgolemono)
+	7 — Stuffed Grape Leaves with Egg-Lemon Sauce (dolmadakia me avgolemono)
 139 — Grape-Must Pudding (moustalevria)
 135-136 — Grape-Must Syrup Cookies (moustokouloura)
 155 — Grape Spoon Sweet (glyko stafyli)
@@ -213,7 +213,7 @@ pork
 	99 — Kebab
 	3 — Meatballs (keftedes)
 	95-96 — Moussaka
-	4 — Stuffed Grape Leaves with Egg-Lemon Sauce (dolmadakia me avgolemono)
+	7 — Stuffed Grape Leaves with Egg-Lemon Sauce (dolmadakia me avgolemono)
 75 — Pork Fricassée (hirino fricassee)
 81 — Pork Stew (hirino stifado)
 54 — Potato and Fish Roe Purée (taramasalata)
@@ -249,7 +249,7 @@ rice
 	43 — Pumpkin Pie (kolokythopita)
 	40 — Spinach Pie (spanakopita)
 	65 — Spinach with Rice (spanakorizo)
-	4 — Stuffed Grape Leaves with Egg-Lemon Sauce (dolmadakia me avgolemono)
+	7 — Stuffed Grape Leaves with Egg-Lemon Sauce (dolmadakia me avgolemono)
 	32 — Stuffed Vegetables (gemista)
 140 — Rice Pudding (rizogalo)
 109 — Roasted Cod with Onions and Potatoes (bakaliaros plaki)
@@ -297,7 +297,6 @@ tomato juice
 	72 — Giouvetsi
 	29 — Green Beans (fasolakia)
 	11 — Lentils (fakes)
-tomato sauce
 	95-96 — Moussaka
 	109 — Octopus with Pasta (htapodi me kofto makaronaki)
 	93-94 — Pastichio
@@ -318,7 +317,7 @@ veal
 	3 — Meatballs (keftedes)
 	95-96 — Moussaka
 	93-94 — Pastichio
-	4 — Stuffed Grape Leaves with Egg-Lemon Sauce (dolmadakia me avgolemono)
+	7 — Stuffed Grape Leaves with Egg-Lemon Sauce (dolmadakia me avgolemono)
 24 — Village Salad (horiatiki salata)
 vinegar
 	red wine
@@ -361,14 +360,10 @@ zucchini
 	32 — Stuffed Vegetables (gemista)
 
 ## Transcription notes
-- "Stuffed Grape Leaves with Egg-Lemon Sauce (dolmadakia me avgolemono)" appears
-  with TWO different page numbers: **page 7** (under appetizers, soup, and as a
-  top-level S entry) and **page 4** (under beef, grape leaves, pork, rice, veal).
-  Kept as two separate recipes since that's what the index says; may be an index
-  inconsistency in the book - worth a quick check against the physical pages.
-- The "tomato sauce" heading on p.178 was slightly hard to read; the heading name
-  is my best read (the recipes/pages under it are clear). Doesn't affect search,
-  since keywords aren't searched yet and every recipe under it is indexed
-  elsewhere too.
+- "Stuffed Grape Leaves with Egg-Lemon Sauce (dolmadakia me avgolemono)" is page 7
+  (one recipe). Page 4 is Pumpkin Fritters.
+- The "tomato juice" list runs long and breaks across the column (ending at
+  Lentils, continuing at Moussaka). It's one continuous list under tomato juice;
+  there is no separate heading between Lentils and Moussaka.
 - Greek transliterations are kept in the recipe titles (e.g. "spanakopita"), so a
   search for the Greek name will also match.
