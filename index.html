@@ -19,6 +19,15 @@
       --accent: #9c4221;
       --accent-text: #ffffff;
       --shadow: 0 1px 2px rgba(43, 33, 26, 0.08), 0 2px 8px rgba(43, 33, 26, 0.05);
+      /* Rounded rectangles (cards, search box, text fields). Pills stay round. */
+      --radius: 12px;
+      --radius-sm: 10px;
+      --corner: round;
+    }
+    /* Squircle corners where supported. A squircle at the same radius looks
+       squarer, so the radius goes up to keep a similar amount of rounding. */
+    @supports (corner-shape: squircle) {
+      :root { --radius: 20px; --radius-sm: 16px; --corner: squircle; }
     }
     @media (prefers-color-scheme: dark) {
       :root {
@@ -65,7 +74,7 @@
       font-size: 1rem;
       padding: 12px 40px 12px 14px;
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: var(--radius); corner-shape: var(--corner);
       background: var(--surface);
       color: var(--text);
       outline: none;
@@ -107,7 +116,7 @@
       color: inherit;
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: var(--radius); corner-shape: var(--corner);
       padding: 12px 14px;
       box-shadow: var(--shadow);
       cursor: pointer;
@@ -124,7 +133,7 @@
       margin-top: 20px;
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: var(--radius); corner-shape: var(--corner);
       padding: 12px 14px;
     }
     .mine-bar h2 { font-size: 0.95rem; margin: 0 0 6px; }
@@ -180,7 +189,7 @@
     .add-row { display: flex; gap: 8px; margin-top: 8px; }
     .add-row input, #d-notes {
       flex: 1; min-width: 0; font: inherit; font-size: 1rem;
-      padding: 9px 12px; border: 1px solid var(--border); border-radius: 10px;
+      padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); corner-shape: var(--corner);
       background: var(--surface); color: var(--text); outline: none;
     }
     .add-row input:focus, #d-notes:focus { border-color: var(--accent); }
