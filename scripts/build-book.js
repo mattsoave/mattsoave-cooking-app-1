@@ -258,10 +258,21 @@ function buildWithToc(list) {
     const bare = r.title.replace(/\s*\([^)]*\)\s*$/, "");
     if (bare !== r.title && !byTitle.has(norm(bare))) byTitle.set(norm(bare), r);
   }
+  // Index entries printed with an excluded TOC title (a sauce, a stock) are
+  // dropped outright, so they can't land on a recipe that shares their page.
+  const excludedTitles = new Set(exTitles);
+  for (const t of toc) {
+    if (recs.some((r) => r.title === t.title)) continue;
+    excludedTitles.add(norm(t.title));
+    excludedTitles.add(norm(t.title.replace(/\s*\([^)]*\)\s*$/, "")));
+  }
   const misprints = new Map();
   const rest = [];
   for (const e of list) {
-    const r = byTitle.get(norm(e.row.text));
+    if (excludedTitles.has(norm(e.row.text))) continue;
+    // A lowercase entry ("Sauces › yakisoba", "Korokke › about") is a note or
+    // an ingredient, never a recipe title, even when its words match one.
+    const r = /^[a-z]/.test(e.row.text) ? null : byTitle.get(norm(e.row.text));
     if (!r) { rest.push(e); continue; }
     const span = String(parsePages(e.row.pagesRaw));
     assign(r, e, span);
@@ -308,13 +319,21 @@ function buildWithToc(list) {
           const score = [...contentWords(r.title)].filter((x) => w.has(x)).length;
           if (score > best) { best = score; target = r; }
         }
+        // Shares no words with any of them ("Tenkasu › about, 117, 149"):
+        // a note spanning several recipes, not part of one.
+        if (best === 0) {
+          tocReport.unmatched.push(`p.${span}: "${(m.parent ? `${m.parent} › ` : "") + m.row.text}" (spans several recipes, matches none by name)`);
+          continue;
+        }
       }
       assign(target, m, span);
     }
   }
 
   function assign(target, m, span) {
-    target.spans.set(span, (target.spans.get(span) || 0) + 1);
+    // Lowercase entries are notes ("about", "cooking"): they add keywords but
+    // don't decide the recipe's page span.
+    if (!/^[a-z]/.test(m.row.text)) target.spans.set(span, (target.spans.get(span) || 0) + 1);
     mergeKeywords(target, m.keywords);
     // A flush-left entry printed under another name is indexed under its
     // first term ("Pine Nuts, Marinated, ..." is listed under "pine nuts").
@@ -322,6 +341,13 @@ function buildWithToc(list) {
     if (m.row.level === 0 && m.row.text.includes(",")) {
       const term = m.row.text.split(",")[0].replace(/["“”]/g, "").trim().toLowerCase();
       if (!isSubset(words(term), words(target.title))) mergeKeywords(target, [term]);
+    }
+    // A capitalized entry with its own name that isn't the title is a dish
+    // inside the recipe ("Zaru Soba" in Cold Soba Variations, "Asparagus
+    // Kaki-Age" in Kaki-Age Variations). Keep its name as a keyword.
+    const bare = m.row.text.replace(/\s*\([^)]*\)/g, "");
+    if (/^[A-Z"“]/.test(bare) && !bare.includes(",") && !isSubset(contentWords(bare), contentWords(target.title))) {
+      mergeKeywords(target, [bare.replace(/["“”]/g, "").toLowerCase()]);
     }
   }
 

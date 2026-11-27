@@ -1,0 +1,31 @@
+{
+  "titles": {},
+  "pages": {},
+  "exclude": [
+    "Soy Sauce Marinade",
+    "Torigara Stock",
+    "Miso Dipping Sauce",
+    "Homemade Rayu",
+    "Homemade Panko Bread Crumbs",
+    "Homemade Tonkatsu Sauce",
+    "Miso Tonkatsu Dipping Sauce",
+    "Furai",
+    "Japanese-Style Tartar Sauce",
+    "Tartar Sauce, Japanese-Style",
+    "Korokke",
+    "Ponzu",
+    "Tempura Batter",
+    "Tempura Dipping Sauce (Ten Tsuyu)",
+    "Dashi",
+    "Kaeshi",
+    "Udon Tsuyu",
+    "Itame",
+    "Chahan",
+    "White Sauce",
+    "Wafu Pasta"
+  ],
+  "keep": [],
+  "reviewed": [
+    "spans:fish kara-age"
+  ]
+}

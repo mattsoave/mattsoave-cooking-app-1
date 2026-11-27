@@ -24,6 +24,21 @@ Questions for Matt that don't block the work. Agents add new ones here instead o
 	- In the meantime: the full title.
 	- If shorter: change `title` in `intake/tapas/book.json` to "Tapas" and rebuild with `--write`. (Or add a separate short display name to the data model, if you want the full title kept somewhere.)
 
+### Japanese Soul Cooking
+
+4. **Which TOC entries count as recipes?** Following "skip component recipes", I excluded 20 of the 114 TOC entries:
+	- **Sauces:** Soy Sauce Marinade, Miso Dipping Sauce, Homemade Rayu, Homemade Tonkatsu Sauce, Miso Tonkatsu Dipping Sauce, Japanese-Style Tartar Sauce, Ponzu, Tempura Dipping Sauce (Ten Tsuyu), Kaeshi, Udon Tsuyu, White Sauce
+	- **Stocks:** Torigara Stock, Dashi
+	- **Coatings:** Homemade Panko Bread Crumbs, Tempura Batter
+	- **Section intros:** Furai, Korokke, Itame, Chahan, Wafu Pasta
+	- In the meantime: those are in `exclude` in `intake/japanese-soul-cooking/overrides.json`.
+	- **Kept, though they're borderline:**
+		- Ramen Soup and Chashu (the ramen base, but chashu is a dish of its own)
+		- Soy Sauce Eggs (a topping you'd also eat alone)
+		- Tomato Salada and Lettuce with Ginger-Carrot Dressing (side salads)
+		- the three "Variations" pages
+	- If you want any of them changed: add a title to `exclude`, or remove one from it, then rebuild with `--write`.
+
 ## Answered
 
 - Anything's Pastable, real title on pp. 80–82: the TOC prints "Scallion Oil Bucatini with Runny Eggs". My guess ("Bucatini with Scallion Oil and Runny Eggs") was wrong; the TOC title is now used.

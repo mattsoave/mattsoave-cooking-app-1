@@ -105,7 +105,16 @@ How the script decides what's a recipe:
   one span, each entry goes to the title it shares the most words with.
   Index entries that match no TOC recipe (notes, gear, people, components) are
   dropped and listed in `review.md`. A TOC recipe with no index match keeps its
-  TOC page and gets flagged.
+  TOC page and gets flagged. Other rules in this mode:
+  - Index entries printed with an excluded title (a sauce in `exclude`) are
+    dropped, so they don't attach to a recipe on the same page.
+  - Lowercase entries ("about", "cooking", "Sauces › yakisoba") are never
+    taken as a recipe title and don't set a recipe's page span; they can
+    still add keywords.
+  - An entry whose span covers several TOC recipes but shares no words with
+    any of them ("Tenkasu › about, 117, 149") is dropped.
+  - A capitalized entry naming a dish that isn't the recipe's title ("Zaru
+    Soba" in Cold Soba Variations) becomes a keyword.
 - **Without a TOC, `groupBy: "title"` (default):** one recipe per
   (title + page). For indexes that print each recipe under the same name
   everywhere (the Greek book).
