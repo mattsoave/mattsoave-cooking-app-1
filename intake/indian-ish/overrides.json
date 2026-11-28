@@ -1,0 +1,29 @@
+{
+  "titles": {
+    "Tilapia › Kachumber": "Kachumber Tilapia"
+  },
+  "pages": {
+    "Kachumber (Salads!)": "106-109",
+    "Chile, Garlic, and Bay Leaf Olives": "56, 67",
+    "Spicy Olive Tapenade": "51, 56"
+  },
+  "excludeChapters": [
+    "Essentials"
+  ],
+  "exclude": [
+    "Ginger-Lime Strips",
+    "Dad's Yogurt",
+    "Raita",
+    "Lime, Chile, and Garlic Dressing",
+    "Tamarind, Fig, and Cumin Chutney",
+    "Peanut Chutney",
+    "Cilantro Chutney",
+    "Garlicky Tomatoes",
+    "Green Chile and Cherry Tomato Pickle",
+    "Mango Launji"
+  ],
+  "keep": [],
+  "reviewed": [
+    "spans:kachumber (salads!)"
+  ]
+}

@@ -39,6 +39,18 @@ Questions for Matt that don't block the work. Agents add new ones here instead o
 		- the three "Variations" pages
 	- If you want any of them changed: add a title to `exclude`, or remove one from it, then rebuild with `--write`.
 
+### Indian-ish
+
+5. **Which TOC entries count as recipes?** Following "skip component recipes", I left out 18 of the 92 TOC entries:
+	- **The Essentials chapter (all 8):** How to Cook Rice, How to Cook White Quinoa, How to Boil Potatoes, and five essays and guides (spices and lentils, chhonk, favorite things, Ritu's guide, hosting tips). This is `excludeChapters` in `intake/indian-ish/overrides.json`.
+	- **10 condiments from Mother Sauces:** Ginger-Lime Strips, Dad's Yogurt, Raita, Lime, Chile, and Garlic Dressing, Tamarind, Fig, and Cumin Chutney, Peanut Chutney, Cilantro Chutney, Garlicky Tomatoes, Green Chile and Cherry Tomato Pickle, Mango Launji. These are in `exclude`.
+	- **Kept from Mother Sauces, as snacks or dips:** Spicy Olive Tapenade, Lima Bean and Basil Dip, Sun-Dried Tomato, Chile, and Garlic Dip, Black Pepper and Chile Baked Goat Cheese, Spicy Chickpea Dip, Chile, Garlic, and Bay Leaf Olives. The index lists all but the olives under "Dips", and lists the raitas under "Sauces", which is where I drew the line.
+	- Raita is borderline: it's a side dish with five versions (Basic, Cucumber, Mustard Seed and Curry Leaf, Potato, Squash) on pp. 48–50.
+	- If you want any of them changed: add a title to `exclude` or remove one from it (or remove "Essentials" from `excludeChapters`), then rebuild with `--write`.
+6. **Split Kachumber (Salads!) into five recipes?** The TOC has one entry, but the index names five salads on pp. 106–109 (Basic Kachumber, Beet and Avocado Kachumber, Avocado, Corn, and Tomato Kachumber, Mung Bean and Potato Kachumber, Daikon Radish Kachumber).
+	- In the meantime: one recipe, "Kachumber (Salads!)", p. 106-109, with the five names as keywords. Searching "beet" finds it only with the ingredients toggle on.
+	- If split: the build script would need a way to add recipes the TOC doesn't list (for example an `add` key in `overrides.json` with title and page), since the TOC decides which recipes exist.
+
 ## Answered
 
 - Anything's Pastable, real title on pp. 80–82: the TOC prints "Scallion Oil Bucatini with Runny Eggs". My guess ("Bucatini with Scallion Oil and Runny Eggs") was wrong; the TOC title is now used.

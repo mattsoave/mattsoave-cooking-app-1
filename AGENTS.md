@@ -65,6 +65,13 @@ new questions there instead of asking in chat; he answers them in bulk.
 - **Large photos:** newer photos are full resolution (2–5 MB). Read a copy
   downsized to 1568px (`sips -Z 1568 <in> --out <scratch>/<name>`), not the
   original.
+- **Rotated photos:** some photos come in sideways or upside down, and they
+  carry no EXIF orientation tag, so check them by eye. A landscape photo
+  (4080×3072 instead of 3072×4080) is the usual sign, but a portrait photo can
+  still be upside down. A contact sheet of 400px thumbnails shows all of a
+  book's photos at once. Rotate the original in place with `sips -r 90|180|270`
+  (degrees clockwise), then make the reading copy. Note which photos were
+  rotated in the book's `notes.md`.
 - **Index rows, exactly as printed:**
   - `level` is the indent: 0 flush left, 1 indented once, 2 twice. A row with
     no pages is a heading; a row with pages is an entry.
@@ -134,6 +141,10 @@ vinegar" as well as "vinegar").
 `overrides.json` keys:
 
 - `titles`: `{ "printed text": "corrected text" }`, applied to index rows first.
+  A key `"Heading › text"` (heading without its "(s)" or "See also" part, as
+  in review.md) changes only that sub-entry, for a sub-entry whose
+  text is also a heading or another recipe ("Tilapia › Kachumber" is
+  Kachumber Tilapia, not the Kachumber salads).
 - `pages`: `{ "title": "page" }`, a corrected or display page.
 - `pageTitles`: `{ "span": "title" or ["title", ...] }`, for `groupBy: "page"`.
 - `exclude`: titles or index text that aren't recipes.

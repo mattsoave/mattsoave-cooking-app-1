@@ -19,6 +19,7 @@
 //                   the text from the page numbers.
 //   overrides.json  decisions made during review:
 //                     titles:     { "printed text": "corrected text" }  (applied before anything else)
+//                                 a key "Heading › text" fixes only that sub-entry
 //                     pageTitles: { "page": "title" | ["title", "title"] }  (groupBy page: pick or split)
 //                     pages:      { "title": "page" }   corrected or display page
 //                     exclude:    [ "text or title", ... ]  non-recipes
@@ -149,6 +150,13 @@ rows.forEach((row, i) => {
     info.push(`"${stack.slice(0, row.level).join(" › ")}" carries over from ${rows[i - 1].photo} to ${row.photo}`);
   }
   stack.length = row.level;
+  // titles can also be keyed "Heading › text", to fix one sub-entry without
+  // touching other rows printed with the same text.
+  const scopedKey = row.level > 0 ? `${stack[row.level - 1]} › ${row.text}` : null;
+  if (scopedKey && overrides.titles[scopedKey]) {
+    row.text = overrides.titles[scopedKey];
+    titleOverridesUsed.push(scopedKey);
+  }
   // A sub-heading only makes sense with its parent: "vinegar › white" is
   // "white vinegar", "beans › lima" is "lima beans". Keep the parent too.
   const keywords = stack.map((h, j) => (j === 0 ? h : `${h} ${stack[j - 1]}`).toLowerCase());
