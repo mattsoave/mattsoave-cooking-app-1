@@ -81,8 +81,10 @@
       const hay = title + " " + norm(extraTerms(row).join(" "));
       return terms.every((t) => hay.includes(t));
     });
-    // Rank: title starts-with query, then title contains all terms, then
-    // keyword-only matches last; alphabetical within each tier.
+    // Rank: favorites first (row.mine.favorite, set by app.js), then title
+    // starts-with query, then title contains all terms, then keyword-only
+    // matches; alphabetical within each tier.
+    const fav = (row) => (row.mine && row.mine.favorite ? 0 : 1);
     const q = norm(query);
     function rank(row) {
       const t = norm(row.title);
@@ -91,6 +93,7 @@
       return 2; // matched only via keywords
     }
     results.sort((a, b) => {
+      if (fav(a) !== fav(b)) return fav(a) - fav(b);
       const ra = rank(a), rb = rank(b);
       if (ra !== rb) return ra - rb;
       return norm(a.title).localeCompare(norm(b.title));

@@ -179,6 +179,8 @@ two.
     surfaces recipes that list tomato even when the title doesn't. It also
     matches Matt's own ingredients and keywords (`row.mine`, see My notes).
     Notes text isn't searched. Title matches rank above keyword-only matches.
+  - Favorites (`row.mine.favorite`) rank above everything else, with the same
+    tiers inside the favorites.
 - The toggle ("Also search ingredients & categories") is a checkbox in the
   header; `app.js` persists it in `localStorage` (`cooking.includeKeywords`,
   default off) and shows a "matches: …" hint on keyword-only hits.
@@ -188,9 +190,15 @@ two.
 
 ## My notes (Matt's additions to a recipe)
 
-Tapping a recipe opens a detail screen where Matt adds his own ingredients
-(specific ones like "ground beef", not the full list), keywords (free tagging),
-and written notes. The book's index keywords show there read-only.
+Tapping a recipe opens a detail screen where Matt marks it as a favorite and
+adds his own ingredients (specific ones like "ground beef", not the full list),
+keywords (free tagging), and written notes. The book's index keywords show
+there read-only. Favorites show a star on result cards and in the My notes
+list, and come first in search results.
+
+A favorite is one more field (`favorite: true`) on the same entry as the
+notes, so it follows the same export and import lifecycle below. Export files
+from before favorites existed import as not favorite.
 
 - **Two layers.** Edits are saved on the phone first (`localStorage`,
   `cooking.myNotes`). The permanent copy is `data/additions.json`, which is

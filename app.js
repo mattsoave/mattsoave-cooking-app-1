@@ -20,6 +20,8 @@ const els = {
   // Recipe detail dialog
   dlg: $("detail"),
   dClose: $("d-close"),
+  dFav: $("d-fav"),
+  dFavLabel: $("d-fav-label"),
   dTitle: $("d-title"),
   dSub: $("d-sub"),
   dIndexWrap: $("d-index-wrap"),
@@ -110,6 +112,10 @@ function subLine(row) {
   return `<span class="cookbook">${esc(row.cookbook)}</span>${chapter} ${page}`;
 }
 
+function favStar(row) {
+  return row.mine && row.mine.favorite ? `<span class="fav-star" aria-label="Favorite">&#9733;</span>` : "";
+}
+
 // Short summary of Matt's additions for a result card.
 function mineLine(row) {
   const m = row.mine;
@@ -117,6 +123,8 @@ function mineLine(row) {
   const bits = [].concat(m.ingredients, m.keywords);
   let text = bits.join(", ");
   if (m.notes) text += (text ? " · " : "") + "notes";
+  // A favorite with nothing else still gets a line while it's only on this phone.
+  if (!text && m.favorite && m.status !== "saved") text = "favorite";
   if (!text) return "";
   const dot = m.status === "saved" ? "" : `<span class="dot" title="Only on this phone"></span>`;
   return `<div class="recipe-mine">${dot}${esc(text)}</div>`;
@@ -173,7 +181,7 @@ function render(query) {
         }
       }
       return `<li><button class="recipe" data-key="${esc(keyOf(r))}">
-        <div class="recipe-title">${highlight(r.title, q)}</div>
+        <div class="recipe-title">${favStar(r)}${highlight(r.title, q)}</div>
         <div class="recipe-sub">${subLine(r)}</div>
         ${kwHint}
         ${mineLine(r)}
@@ -203,7 +211,7 @@ function renderMineBar() {
     const e = store.entries[k];
     const label = e.exportId ? "waiting" : "not exported";
     return `<li><button class="mine-item" data-key="${esc(k)}">
-      <span>${esc(e.title)}</span><span class="mine-state">${label}</span></button></li>`;
+      <span>${e.favorite ? `<span class="fav-star">&#9733;</span>` : ""}${esc(e.title)}</span><span class="mine-state">${label}</span></button></li>`;
   }).join("");
 
   const canExport = c.pending > 0;
@@ -259,7 +267,7 @@ function download(file) {
 // ---- Recipe detail dialog ----
 
 let current = null; // the row being edited
-let draft = null;   // { notes, ingredients, keywords } shown in the dialog
+let draft = null;   // { favorite, notes, ingredients, keywords } shown in the dialog
 
 function rowForKey(key) {
   if (rowsByKey.has(key)) return rowsByKey.get(key);
@@ -279,7 +287,8 @@ function openDetail(row) {
   current = row;
   refreshMine(row);
   const m = row.mine;
-  draft = { notes: m.notes, ingredients: m.ingredients.slice(), keywords: m.keywords.slice() };
+  draft = { favorite: m.favorite, notes: m.notes, ingredients: m.ingredients.slice(), keywords: m.keywords.slice() };
+  renderFav();
 
   els.dTitle.textContent = row.title;
   els.dSub.innerHTML = subLine(row) +
@@ -296,6 +305,17 @@ function openDetail(row) {
   els.dlg.showModal();
   els.dlg.scrollTop = 0;
 }
+
+function renderFav() {
+  els.dFav.setAttribute("aria-pressed", draft.favorite ? "true" : "false");
+  els.dFavLabel.textContent = draft.favorite ? "Favorite" : "Add to favorites";
+}
+
+els.dFav.addEventListener("click", () => {
+  draft.favorite = !draft.favorite;
+  renderFav();
+  saveDraft();
+});
 
 function renderChips() {
   const chips = (list, field) => list.map((v, i) =>

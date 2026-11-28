@@ -1,11 +1,11 @@
-// Pure logic for Matt's own additions to a recipe (notes, ingredients,
-// keywords). No DOM, so it runs in the browser (window.CookingNotes) and in
+// Pure logic for Matt's own additions to a recipe (favorite, notes,
+// ingredients, keywords). No DOM, so it runs in the browser (window.CookingNotes) and in
 // Node (module.exports) for tests and scripts/import-notes.js.
 //
 // Two layers:
 // - Permanent: data/additions.json, committed. Built by import-notes.js from
 //   export files. Shape: { schemaVersion, importedExports: [id, ...],
-//   recipes: { key: { cookbookId, title, page, notes, ingredients, keywords, updatedAt } } }
+//   recipes: { key: { cookbookId, title, page, favorite, notes, ingredients, keywords, updatedAt } } }
 // - Local: the phone's localStorage. One entry per recipe Matt changed, holding
 //   the FULL desired state for that recipe (not a diff), plus exportId.
 //
@@ -49,6 +49,7 @@
 
   function cleanFields(f) {
     return {
+      favorite: !!(f && f.favorite),
       notes: String((f && f.notes) || "").replace(/\s+$/, ""),
       ingredients: cleanList(f && f.ingredients),
       keywords: cleanList(f && f.keywords)
@@ -56,12 +57,12 @@
   }
 
   function isEmpty(f) {
-    return !f.notes && !f.ingredients.length && !f.keywords.length;
+    return !f.favorite && !f.notes && !f.ingredients.length && !f.keywords.length;
   }
 
   function sameFields(a, b) {
     const x = cleanFields(a), y = cleanFields(b);
-    return x.notes === y.notes &&
+    return x.favorite === y.favorite && x.notes === y.notes &&
       JSON.stringify(x.ingredients) === JSON.stringify(y.ingredients) &&
       JSON.stringify(x.keywords) === JSON.stringify(y.keywords);
   }
@@ -145,7 +146,7 @@
       const e = store.entries[k];
       return {
         key: k, cookbookId: e.cookbookId, title: e.title, page: e.page,
-        notes: e.notes, ingredients: e.ingredients, keywords: e.keywords,
+        favorite: !!e.favorite, notes: e.notes, ingredients: e.ingredients, keywords: e.keywords,
         updatedAt: e.updatedAt
       };
     });

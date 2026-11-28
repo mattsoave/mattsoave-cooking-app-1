@@ -112,6 +112,47 @@ t("clearing a permanent recipe's additions exports an empty entry that removes t
   assert.strictEqual(a.recipes[key], undefined);
 });
 
+t("a favorite alone is a change, and unfavoriting a never-exported one drops it", () => {
+  const s = N.emptyStore(), a = N.emptyAdditions();
+  N.setEntry(s, a, moussaka, { favorite: true });
+  assert.strictEqual(N.effective(s, a, key).favorite, true);
+  assert.deepStrictEqual(N.counts(s), { pending: 1, waiting: 0 });
+  N.setEntry(s, a, moussaka, { favorite: false });
+  assert.strictEqual(Object.keys(s.entries).length, 0);
+});
+
+t("favorites round-trip through export and import", () => {
+  const s = N.emptyStore(), a = N.emptyAdditions();
+  N.setEntry(s, a, moussaka, { favorite: true }, at("10:00"));
+  const b = N.buildExport(s, { exportId: "e1" });
+  assert.strictEqual(b.file.entries[0].favorite, true);
+  N.markExported(s, b.keys, "e1");
+  N.applyImport(a, b.file);
+  assert.strictEqual(a.recipes[key].favorite, true);
+  assert.strictEqual(N.reconcile(s, a), 1);
+  assert.strictEqual(N.effective(s, a, key).favorite, true);
+  assert.strictEqual(N.effective(s, a, key).status, "saved");
+});
+
+t("an export from before favorites existed imports as not favorite", () => {
+  const a = N.emptyAdditions();
+  N.applyImport(a, { kind: "cooking-app-notes-export", exportId: "old", exportedAt: "2026-11-27T00:00:00Z",
+    entries: [{ key, cookbookId: "greek", title: "Moussaka", notes: "hi", updatedAt: "2026-11-27T00:00:00Z" }] });
+  assert.strictEqual(a.recipes[key].favorite, false);
+});
+
+t("favorites come first in search results", () => {
+  const index = flattenRecipes({ cookbooks: [{ id: "b", title: "B", recipes: [
+    { title: "Chicken Soup", page: 1 }, { title: "Lemon Chicken", page: 2 }, { title: "Roast Lamb", page: 3, keywords: ["chicken stock"] }
+  ] }] });
+  const byTitle = (t) => index.find((r) => r.title === t);
+  byTitle("Roast Lamb").mine = { favorite: true, ingredients: [], keywords: [] };
+  byTitle("Lemon Chicken").mine = { favorite: true, ingredients: [], keywords: [] };
+  const titles = searchRecipes(index, "chicken", { includeKeywords: true }).map((r) => r.title);
+  // Favorites first (title match before keyword-only), then the rest.
+  assert.deepStrictEqual(titles, ["Lemon Chicken", "Roast Lamb", "Chicken Soup"]);
+});
+
 t("search with the toggle on also matches my ingredients and keywords", () => {
   const index = flattenRecipes({ cookbooks: [{ id: "greek", title: "Greek", recipes: [{ title: "Moussaka", page: 95 }] }] });
   index[0].mine = { notes: "", ingredients: ["ground beef"], keywords: ["weeknight"] };

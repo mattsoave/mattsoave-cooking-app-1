@@ -167,7 +167,17 @@
     }
     dialog#detail::backdrop { background: rgba(0, 0, 0, 0.4); }
     .sheet { padding: max(12px, env(safe-area-inset-top)) 16px 40px; }
-    .sheet-head { display: flex; justify-content: flex-end; }
+    .sheet-head { display: flex; justify-content: space-between; align-items: center; }
+    .fav-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      font: inherit; font-size: 0.9rem; font-weight: 600; cursor: pointer;
+      background: var(--surface-2); color: var(--text);
+      border: none; border-radius: 999px; padding: 6px 14px 6px 10px;
+    }
+    .fav-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; }
+    .fav-btn[aria-pressed="true"] { background: var(--accent); color: var(--accent-text); }
+    .fav-btn[aria-pressed="true"] svg { fill: currentColor; }
+    .fav-star { color: var(--accent); margin-right: 4px; }
     #d-close {
       font-size: 1.6rem; line-height: 1; padding: 4px 10px;
       background: none; border: none; color: var(--muted); cursor: pointer;
@@ -251,6 +261,10 @@
   <dialog id="detail" aria-labelledby="d-title">
     <div class="sheet">
       <div class="sheet-head">
+        <button id="d-fav" class="fav-btn" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.8 5.7 6.3.9-4.6 4.4 1.1 6.2L12 17l-5.6 3 1.1-6.2L2.9 9.4l6.3-.9z"/></svg>
+          <span id="d-fav-label">Favorite</span>
+        </button>
         <button id="d-close" aria-label="Close">&times;</button>
       </div>
       <h2 id="d-title"></h2>
